@@ -1,3 +1,3 @@
 # OpenMBU Autosplitter
 
-Experimental autosplitter for OpenMBU using Windows pipes.
+Experimental autosplitter for OpenMBU using Windows pipes. Doesn't work at the moment...
