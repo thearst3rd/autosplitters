@@ -13,25 +13,27 @@ init {
 	vars.doStart = false;
 	vars.doSplit = false;
 
-	System.IO.Pipes.NamedPipeClientStream pipeClient = new System.IO.Pipes.NamedPipeClientStream(".", "mbuautosplitter", System.IO.Pipes.PipeDirection.In);
+	print("Opening OpenMBU autosplitter file");
+	String path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+	path = Path.Combine(path, "GarageGames", "Marble Blast Ultra", "autosplitter.txt");
+	print("OpenMBU Autosplitter path: " + path);
+	FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
 
-	print("Connecting to OpenMBU pipe...");
-	pipeClient.Connect();
+	vars.streamReader = new StreamReader(fs);
 
-	print("Connected");
-
-	vars.streamReader = new StreamReader(pipeClient);
-	vars.streamReader.ReadTimeout = 1;
+	// Clear out old data
+	print("Discarding: " + vars.streamReader.ReadToEnd());
 }
 
 
 update {
-	string temp = null; //vars.streamReader.ReadLine();
-	if (temp != null)
+	String line;
+	while ((line = vars.streamReader.ReadLine()) != null)
 	{
-		if (temp.StartsWith("start"))
+		print("OpenMBU autosplitter got line: " + line);
+		if (line.StartsWith("start"))
 			vars.doStart = true;
-		else if (temp.StartsWith("split"))
+		else if (line.StartsWith("finish"))
 			vars.doSplit = true;
 	}
 }
