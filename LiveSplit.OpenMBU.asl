@@ -12,6 +12,7 @@ state("MBUltra64_OPTIMIZEDDEBUG") {}
 init {
 	vars.doStart = false;
 	vars.doSplit = false;
+	vars.isLoading = false;
 
 	print("Opening OpenMBU autosplitter file");
 	String path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -35,6 +36,10 @@ update {
 			vars.doStart = true;
 		else if (line.StartsWith("finish"))
 			vars.doSplit = true;
+		else if (line.StartsWith("loading started"))
+			vars.isLoading = true;
+		else if (line.StartsWith("loading finished"))
+			vars.isLoading = false;
 	}
 }
 
@@ -54,4 +59,9 @@ split {
 		return true;
 	}
 	return false;
+}
+
+
+isLoading {
+	return vars.isLoading;
 }
