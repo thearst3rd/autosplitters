@@ -9,7 +9,8 @@ state("MBUltra_OPTIMIZEDDEBUG") {}
 state("MBUltra64_OPTIMIZEDDEBUG") {}
 
 
-init {
+init
+{
 	vars.doStart = false;
 	vars.doSplit = false;
 	vars.isLoading = false;
@@ -27,7 +28,8 @@ init {
 }
 
 
-update {
+update
+{
 	String line;
 	while ((line = vars.streamReader.ReadLine()) != null)
 	{
@@ -44,8 +46,10 @@ update {
 }
 
 
-start {
-	if (vars.doStart) {
+start
+{
+	if (vars.doStart)
+	{
 		vars.doStart = false;
 		return true;
 	}
@@ -53,8 +57,10 @@ start {
 }
 
 
-split {
-	if (vars.doSplit) {
+split
+{
+	if (vars.doSplit)
+	{
 		vars.doSplit = false;
 		return true;
 	}
@@ -62,6 +68,7 @@ split {
 }
 
 
-isLoading {
+isLoading
+{
 	return vars.isLoading;
 }
