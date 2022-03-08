@@ -87,6 +87,31 @@ startup
 
 	settings.CurrentDefaultParent = null;
 	settings.Add("splitUnknown", false, "Split on finishing unknown level");
+
+	settings.Add("splitEggs", false, "Split on collecting easter eggs");
+	settings.CurrentDefaultParent = "splitEggs";
+
+	// These order of these reflects the in-game order of the levels, but the egg indices do not follow that order
+	settings.Add("splitEgg1", true, "Learning to Roll");
+	settings.Add("splitEgg2", true, "Gem Collection");
+	settings.Add("splitEgg3", true, "First Flight");
+	settings.Add("splitEgg4", true, "Ramp Matrix");
+	settings.Add("splitEgg5", true, "Upward Spiral");
+	settings.Add("splitEgg6", true, "Mountaintop Retreat");
+	settings.Add("splitEgg7", true, "Urban Jungle");
+	settings.Add("splitEgg8", true, "Obstacle Course");
+	settings.Add("splitEgg9", true, "Fork in the Road");
+	settings.Add("splitEgg11", true, "Black Diamond");
+	settings.Add("splitEgg12", true, "Whirl");
+	settings.Add("splitEgg10", true, "Hop Skip and a Jump");
+	settings.Add("splitEgg15", true, "Ordeal");
+	settings.Add("splitEgg14", true, "Daedalus");
+	settings.Add("splitEgg17", true, "Scaffold");
+	settings.Add("splitEgg13", true, "Battlements");
+	settings.Add("splitEgg19", true, "Three-Fold Maze");
+	settings.Add("splitEgg18", true, "Will o' Wisp");
+	settings.Add("splitEgg16", true, "King of the Mountain");
+	settings.Add("splitEgg20", true, "Natural Selection");
 }
 
 
@@ -135,6 +160,13 @@ update
 		else if (line.StartsWith("loading finished"))
 		{
 			vars.isLoading = false;
+		}
+		else if (line.StartsWith("egg"))
+		{
+			String[] words = line.Split(' ');
+			int eggNum;
+			if (words.Length > 1 && int.TryParse(words[1], out eggNum) && eggNum >= 1 && eggNum <= 20)
+				vars.doSplit = settings["splitEgg" + eggNum];
 		}
 	}
 }
