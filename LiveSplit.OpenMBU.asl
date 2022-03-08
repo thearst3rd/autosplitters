@@ -125,6 +125,12 @@ init
 	String path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 	path = Path.Combine(path, "GarageGames", "Marble Blast Ultra", "autosplitter.txt");
 	print("OpenMBU Autosplitter path: " + path);
+	// Wait for file to exist (timeout after some time)
+	for (int i = 1; i < 120; i++)
+	{
+		if (!File.Exists(path))
+			Thread.Sleep(1000);
+	}
 	FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
 
 	vars.streamReader = new StreamReader(fs);
