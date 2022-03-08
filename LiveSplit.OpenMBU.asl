@@ -142,7 +142,8 @@ update
 		print("OpenMBU autosplitter got line: " + line);
 		if (line.StartsWith("start"))
 		{
-			vars.doStart = true;
+			if (timer.CurrentPhase == TimerPhase.NotRunning)
+				vars.doStart = true;
 		}
 		else if (line.StartsWith("finish"))
 		{
