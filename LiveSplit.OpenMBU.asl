@@ -148,17 +148,10 @@ update
 		print("OpenMBU autosplitter got line: " + line);
 		if (line.StartsWith("start"))
 		{
+			if (!settings.StartEnabled)
+				continue;
 			if (timer.CurrentPhase == TimerPhase.NotRunning)
 				vars.doStart = true;
-		}
-		else if (line.StartsWith("finish"))
-		{
-			String[] words = line.Split(' ');
-			int levelNum;
-			if (words.Length > 1 && int.TryParse(words[1], out levelNum) && levelNum >= 1 && levelNum <= 60)
-				vars.doSplit = settings["split" + levelNum];
-			else
-				vars.doSplit = settings["splitUnknown"];
 		}
 		else if (line.StartsWith("loading started"))
 		{
@@ -168,12 +161,28 @@ update
 		{
 			vars.isLoading = false;
 		}
-		else if (line.StartsWith("egg"))
+		else
 		{
-			String[] words = line.Split(' ');
-			int eggNum;
-			if (words.Length > 1 && int.TryParse(words[1], out eggNum) && eggNum >= 1 && eggNum <= 20)
-				vars.doSplit = settings["splitEgg" + eggNum];
+			if (!settings.SplitEnabled
+					|| timer.CurrentPhase == TimerPhase.NotRunning
+					|| timer.CurrentPhase == TimerPhase.Ended)
+				continue;
+			if (line.StartsWith("finish"))
+			{
+				String[] words = line.Split(' ');
+				int levelNum;
+				if (words.Length > 1 && int.TryParse(words[1], out levelNum) && levelNum >= 1 && levelNum <= 60)
+					vars.doSplit = settings["split" + levelNum];
+				else
+					vars.doSplit = settings["splitUnknown"];
+			}
+			else if (line.StartsWith("egg"))
+			{
+				String[] words = line.Split(' ');
+				int eggNum;
+				if (words.Length > 1 && int.TryParse(words[1], out eggNum) && eggNum >= 1 && eggNum <= 20)
+					vars.doSplit = settings["splitEgg" + eggNum];
+			}
 		}
 	}
 }
