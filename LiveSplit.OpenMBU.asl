@@ -1,4 +1,6 @@
 // OpenMBU Autosplitter
+// For OpenMBU beta 1.11 or newer
+// by thearst3rd
 
 
 state("MBUltra") {}
