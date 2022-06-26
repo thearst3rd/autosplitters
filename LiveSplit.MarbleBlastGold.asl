@@ -6,9 +6,6 @@
 state("marbleblast")
 {
 	string100 levelFilename : 0x297ABA;
-
-	// Location of a value which is used to calculate a dynamic offset for $Game::State
-	int stateOffset : 0x299868, 0x710, 0x4, 0x4, 0x1C, 0x18, 0x1080;
 }
 
 startup
@@ -67,29 +64,52 @@ startup
 
 init
 {
-	old.gameState = ""; // This just prevents an error on the first update cycle 
+	old.gameState = ""; // This just prevents an error on the first update cycle
+	vars.gameStateOffset = null;
+	vars.firstUpdate = true;
+	vars.hasEnteredLevel = false;
 }
 
 update
 {
 	// -- Update gameState
-	// Calculate the offset
-	int offset = ((int)(current.stateOffset / 2) / 2) % 0xEB;
+	// Find offset if we haven't already.
+	if (vars.gameStateOffset == null){
+		current.gameState = "";
+		// Don't bother searching if we haven't entered a level yet, as State won't have been set
+		if (vars.hasEnteredLevel){
+			List<string> stateStrings = new List<string>() { "Start", "Ready", "set", "Go", "Play", "End" };
+			// Check all possible offsets for a match with one of the possible state identifiers
+			for (int offset=0x00;offset<0x0FFF;offset++){
+				IntPtr gameStatePtr;
+				new DeepPointer(game.MainModule.BaseAddress+0x294A84, offset * 4, 0x0c, 0x00).DerefOffsets(game, out gameStatePtr);
+				string val = game.ReadString(gameStatePtr, 16);
 
-	// Plug in the offset and get a pointer to $Game::State
-	IntPtr gameStatePtr;
-	new DeepPointer(game.MainModule.BaseAddress+0x294A84, offset * 4, 0x0c, 0x00).DerefOffsets(game, out gameStatePtr);
+				if (stateStrings.Contains(val)){
+					vars.Log("Found $Game::State offset: " + offset.ToString("X"));
+					vars.gameStateOffset = offset;
+					current.gameState = val;
+					break;
+				}
+			}
+		}
+	// Otherwise just use the offset to read the string
+	}else{
+		IntPtr gameStatePtr;
+		new DeepPointer(game.MainModule.BaseAddress+0x294A84, (int)vars.gameStateOffset * 4, 0x0c, 0x00).DerefOffsets(game, out gameStatePtr);
 
-	// Read the string
-	current.gameState = game.ReadString(gameStatePtr, 16);
+		current.gameState = game.ReadString(gameStatePtr, 16);
+	}
 
 	if(current.gameState != old.gameState){
 		vars.Log("State Updated: " + current.gameState);
 	}
 
-	if(current.levelFilename.StartsWith("/data/missions/") && current.levelFilename != old.levelFilename){
+	if(current.levelFilename.StartsWith("/data/missions/") && (current.levelFilename != old.levelFilename || vars.firstUpdate)){
 		vars.Log("Entering level: " + vars.ExtractLevelType(current.levelFilename) + " - " + vars.ExtractLevelName(current.levelFilename));
+		vars.hasEnteredLevel = true;
 	}
+	vars.firstUpdate = false;
 }
 
 
