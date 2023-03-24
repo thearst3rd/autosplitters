@@ -23,3 +23,7 @@ Thanks to CaptainRektbeard for tremendous help in getting the $Game::State varia
 * Auto start is supported. The timer will automatically start when you select a level.
 * Auto split is supported on completing levels.
 	* You can configure which levels you'd like it to split, if you don't want all 100.
+
+## PlatinumQuest
+
+Autosplitter for a currently-in-development version of [PlatinumQuest](https://marbleblast.com/index.php/downloads/pq) which includes a built-in RTA speedrunning mode.
