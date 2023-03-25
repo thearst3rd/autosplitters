@@ -71,6 +71,7 @@ startup {
 		settings.CurrentDefaultParent = settingName;
 		addCategorySettings(category.Value);
 	}
+	settings.Add("split_unknown_level", true, "Split on unknown/custom level");
 
 	settings.CurrentDefaultParent = null;
 	settings.Add("split_new_category", false, "Split on start of new category");
@@ -95,7 +96,7 @@ init {
 	vars.missionTypeBeganTime = new MemoryWatcher<long>(new DeepPointer(ptr + 0x28));
 	vars.currentGameBeganTime = new MemoryWatcher<long>(new DeepPointer(ptr + 0x30));
 
-	vars.currentMission = new StringWatcher(new DeepPointer(ptr + 0x20, 0), 255);
+	vars.currentMission = new StringWatcher(new DeepPointer(ptr + 0x38, 0), 255);
 
 	vars.watchers = new MemoryWatcherList() {
 		vars.isEnabled,
@@ -137,8 +138,16 @@ split {
 	if (vars.isDone.Changed && vars.isDone.Current)
 		return true;
 	if (vars.lastSplitTime.Changed && vars.lastSplitTime.Current > 0) {
-		// TODO check against the current mission
-		return true;
+		var currentMission = vars.currentMission.Current;
+		currentMission = currentMission.Replace("lbmissions_custom/DirectorsCut", "missions_mbp/bonus");
+		currentMission = currentMission.Replace("lbmissions", "missions");
+		print("lastSplitTime changed at mission: " + currentMission);
+		if (settings.ContainsKey(currentMission)) {
+			return settings[currentMission];
+		} else {
+			print("Mission unknown");
+			return settings["split_unknown_level"];
+		}
 	}
 	if (settings["split_new_category"] && vars.missionTypeBeganTime.Changed && vars.missionTypeBeganTime.Current > 0)
 		return true;
