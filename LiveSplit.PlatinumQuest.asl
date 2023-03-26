@@ -89,7 +89,8 @@ init {
 	vars.isEnabled = new MemoryWatcher<bool>(new DeepPointer(ptr + 0x10));
 	vars.isDone = new MemoryWatcher<bool>(new DeepPointer(ptr + 0x11));
 	vars.shouldStartRun = new MemoryWatcher<bool>(new DeepPointer(ptr + 0x12));
-	// 0x13-17 are reserved
+	vars.isPauseScreenOpen = new MemoryWatcher<bool>(new DeepPointer(ptr + 0x13));
+	// 0x14-17 are reserved
 
 	vars.time = new MemoryWatcher<long>(new DeepPointer(ptr + 0x18));
 	vars.lastSplitTime = new MemoryWatcher<long>(new DeepPointer(ptr + 0x20));
@@ -102,6 +103,7 @@ init {
 		vars.isEnabled,
 		vars.isDone,
 		vars.shouldStartRun,
+		vars.isPauseScreenOpen,
 		vars.time,
 		vars.lastSplitTime,
 		vars.missionTypeBeganTime,
@@ -115,10 +117,12 @@ update {
 }
 
 isLoading {
-	return true;
+	return !vars.isPauseScreenOpen.Current;
 }
 
 gameTime {
+	if (vars.isPauseScreenOpen.Current)
+		return;
 	long time = vars.time.Current;
 	if (vars.lastSplitTime.Current > 0 && vars.lastSplitTime.Changed) {
 		time = vars.lastSplitTime.Current;
