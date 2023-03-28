@@ -135,7 +135,7 @@ gameTime {
 }
 
 reset {
-	return vars.isEnabled.Old && vars.shouldStartRun.Current;
+	return vars.isEnabled.Changed && !vars.isEnabled.Current && !vars.isDone.Current;
 }
 
 split {
@@ -160,5 +160,5 @@ split {
 }
 
 start {
-	return vars.isEnabled.Current;
+	return vars.isEnabled.Changed && vars.isEnabled.Current;
 }
