@@ -86,12 +86,7 @@ init {
 	IntPtr ptr = scanner.Scan(new SigScanTarget(Encoding.ASCII.GetBytes("pqrtaas_abcdefg")));
 	vars.Log("RTAAutosplitter pointer found at: " + ptr);
 
-	vars.isEnabled = new MemoryWatcher<bool>(new DeepPointer(ptr + 0x10));
-	vars.isDone = new MemoryWatcher<bool>(new DeepPointer(ptr + 0x11));
-	vars.shouldStartRun = new MemoryWatcher<bool>(new DeepPointer(ptr + 0x12));
-	vars.isPauseScreenOpen = new MemoryWatcher<bool>(new DeepPointer(ptr + 0x13));
-	// 0x14-17 are reserved
-
+	vars.booleanFlags = new MemoryWatcher<ulong>(new DeepPointer(ptr + 0x10));
 	vars.time = new MemoryWatcher<long>(new DeepPointer(ptr + 0x18));
 	vars.lastSplitTime = new MemoryWatcher<long>(new DeepPointer(ptr + 0x20));
 	vars.missionTypeBeganTime = new MemoryWatcher<long>(new DeepPointer(ptr + 0x28));
@@ -100,28 +95,35 @@ init {
 	vars.currentMission = new StringWatcher(new DeepPointer(ptr + 0x38, 0), 255);
 
 	vars.watchers = new MemoryWatcherList() {
-		vars.isEnabled,
-		vars.isDone,
-		vars.shouldStartRun,
-		vars.isPauseScreenOpen,
+		vars.booleanFlags,
 		vars.time,
 		vars.lastSplitTime,
 		vars.missionTypeBeganTime,
 		vars.currentGameBeganTime,
 		vars.currentMission
 	};
+
+	old.isEnabled = false;
+	old.isDone = false;
+	old.shouldStartRun = false;
+	old.isPauseScreenOpen = false;
 }
 
 update {
 	vars.watchers.UpdateAll(game);
+
+	current.isEnabled = (vars.booleanFlags.Current & (1 << 0)) != 0;
+	current.isDone = (vars.booleanFlags.Current & (1 << 1)) != 0;
+	current.shouldStartRun = (vars.booleanFlags.Current & (1 << 2)) != 0;
+	current.isPauseScreenOpen = (vars.booleanFlags.Current & (1 << 3)) != 0;
 }
 
 isLoading {
-	return !vars.isPauseScreenOpen.Current;
+	return !current.isPauseScreenOpen;
 }
 
 gameTime {
-	if (vars.isPauseScreenOpen.Current)
+	if (current.isPauseScreenOpen)
 		return;
 	long time = vars.time.Current;
 	if (vars.lastSplitTime.Current > 0 && vars.lastSplitTime.Changed) {
@@ -135,11 +137,11 @@ gameTime {
 }
 
 reset {
-	return vars.isEnabled.Changed && !vars.isEnabled.Current && !vars.isDone.Current;
+	return !current.isEnabled && old.isEnabled && !current.isDone;
 }
 
 split {
-	if (vars.isDone.Changed && vars.isDone.Current)
+	if (current.isDone && !old.isDone)
 		return true;
 	if (vars.lastSplitTime.Changed && vars.lastSplitTime.Current > 0) {
 		var currentMission = vars.currentMission.Current;
@@ -160,5 +162,5 @@ split {
 }
 
 start {
-	return vars.isEnabled.Changed && vars.isEnabled.Current;
+	return current.isEnabled && !old.isEnabled;
 }
