@@ -103,26 +103,34 @@ init {
 		vars.currentMission
 	};
 
+	old.isValid = false;
 	old.isEnabled = false;
 	old.isDone = false;
 	old.shouldStartRun = false;
 	old.isPauseScreenOpen = false;
+	old.isCrashRecoveryMode = false;
 }
 
 update {
 	vars.watchers.UpdateAll(game);
 
-	current.isEnabled = (vars.booleanFlags.Current & (1 << 0)) != 0;
-	current.isDone = (vars.booleanFlags.Current & (1 << 1)) != 0;
-	current.shouldStartRun = (vars.booleanFlags.Current & (1 << 2)) != 0;
-	current.isPauseScreenOpen = (vars.booleanFlags.Current & (1 << 3)) != 0;
+	current.isValid = (vars.booleanFlags.Current & (1 << 0)) != 0;
+	current.isEnabled = (vars.booleanFlags.Current & (1 << 1)) != 0;
+	current.isDone = (vars.booleanFlags.Current & (1 << 2)) != 0;
+	current.shouldStartRun = (vars.booleanFlags.Current & (1 << 3)) != 0;
+	current.isPauseScreenOpen = (vars.booleanFlags.Current & (1 << 4)) != 0;
+	current.isCrashRecoveryMode = (vars.booleanFlags.Current & (1 << 5)) != 0;
 }
 
 isLoading {
+	if (!current.isValid || current.isCrashRecoveryMode)
+		return true;
 	return !current.isPauseScreenOpen;
 }
 
 gameTime {
+	if (!current.isValid)
+		return;
 	if (current.isPauseScreenOpen)
 		return;
 	long time = vars.time.Current;
@@ -137,10 +145,14 @@ gameTime {
 }
 
 reset {
+	if (!current.isValid || current.isCrashRecoveryMode)
+		return;
 	return !current.isEnabled && old.isEnabled && !current.isDone;
 }
 
 split {
+	if (!current.isValid || current.isCrashRecoveryMode)
+		return;
 	if (current.isDone && !old.isDone)
 		return true;
 	if (vars.lastSplitTime.Changed && vars.lastSplitTime.Current > 0) {
@@ -162,5 +174,7 @@ split {
 }
 
 start {
+	if (!current.isValid || current.isCrashRecoveryMode)
+		return;
 	return current.isEnabled && !old.isEnabled;
 }
