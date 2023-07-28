@@ -11,6 +11,7 @@ Autosplitter for [OpenMBU Beta 1.11 or newer](https://openmbu.com/download/all).
 * Automatic splits are supported on level completion and easter egg collection.
 	* These splits are completely configurable. You can choose on which levels or easter eggs you want the autosplitter to perform a split.
 * Load removal is supported and will take out any load times from the "Game Time" in LiveSplit.
+	* In the event of a game crash, time will also be paused until a level is resumed.
 
 ## Marble Blast Gold
 
