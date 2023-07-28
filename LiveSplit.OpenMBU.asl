@@ -89,6 +89,8 @@ init
 	vars.doStart = false;
 	vars.doSplit = false;
 	vars.isLoading = false;
+	vars.gameJustStarted = true;
+	timer.IsGameTimePaused = true; // On init, it sets this to false. We want it to stay true in case of a game crash
 
 	print("Opening OpenMBU autosplitter file");
 	String path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -117,6 +119,8 @@ update
 		print("OpenMBU autosplitter got line: " + line);
 		if (line.StartsWith("start"))
 		{
+			vars.gameJustStarted = false;
+			timer.IsGameTimePaused = false;
 			if (!settings.StartEnabled || (timer.CurrentPhase != TimerPhase.NotRunning))
 				continue;
 			String[] words = line.Split(' ');
@@ -185,5 +189,11 @@ split
 
 isLoading
 {
-	return vars.isLoading;
+	return vars.isLoading || vars.gameJustStarted;
+}
+
+
+exit
+{
+    timer.IsGameTimePaused = true; // Pause the timer if the game closes
 }
