@@ -13,79 +13,32 @@ state("MBUltra64_OPTIMIZEDDEBUG") {}
 
 startup
 {
+	List<String> levels = new List<string>()
+	{
+		null, "Learning to Roll", "Moving Up", "Gem Collection", "Frictional Concerns", "Triple Gravity", "Bridge Crossing", "Bunny Slope", "Hazardous Climb", "First Flight", "Marble Melee Primer", "Pitfalls", "Gravity Helix", "Platform Party", "Early Frost", "Winding Road", "Skate Park", "Ramp Matrix", "Half-Pipe", "Jump Jump Jump!", "Upward Spiral",
+		"Mountaintop Retreat", "Urban Jungle", "Gauntlet", "Around the World", "Skyscraper", "Timely Ascent", "Duality", "Sledding", "The Road Less Traveled", "Aim High", "Points of the Compass", "Obstacle Course", "Fork in the Road", "Great Divide", "Black Diamond", "Skate to the Top", "Spelunking", "Whirl", "Hop Skip and a Jump", "Tree House",
+		"Divergence", "Slick Slide", "Ordeal", "Daedalus", "Survival of the Fittest", "Ramps Reloaded", "Cube Root", "Scaffold", "Acrobat", "Endurance", "Battlements", "Three-Fold Maze", "Half-Pipe Elite", "Will o' Wisp", "Under Construction", "Extreme Skiing", "Three-Fold Race", "King of the Mountain", "Natural Selection", "Schadenfreude",
+	};
+
 	settings.Add("splitBeginner", true, "Split on finishing Beginner levels");
 	settings.CurrentDefaultParent = "splitBeginner";
 
-	settings.Add("split1", true, "1: Learning to Roll");
-	settings.Add("split2", true, "2: Moving Up");
-	settings.Add("split3", true, "3: Gem Collection");
-	settings.Add("split4", true, "4: Frictional Concerns");
-	settings.Add("split5", true, "5: Triple Gravity");
-	settings.Add("split6", true, "6: Bridge Crossing");
-	settings.Add("split7", true, "7: Bunny Slope");
-	settings.Add("split8", true, "8: Hazardous Climb");
-	settings.Add("split9", true, "9: First Flight");
-	settings.Add("split10", true, "10: Marble Melee Primer");
-	settings.Add("split11", true, "11: Pitfalls");
-	settings.Add("split12", true, "12: Gravity Helix");
-	settings.Add("split13", true, "13: Platform Party");
-	settings.Add("split14", true, "14: Early Frost");
-	settings.Add("split15", true, "15: Winding Road");
-	settings.Add("split16", true, "16: Skate Park");
-	settings.Add("split17", true, "17: Ramp Matrix");
-	settings.Add("split18", true, "18: Half-Pipe");
-	settings.Add("split19", true, "19: Jump Jump Jump!");
-	settings.Add("split20", true, "20: Upward Spiral");
+	for (int i = 1; i <= 20; i++)
+		settings.Add("split" + i, true, i + ": " + levels[i]);
 
 	settings.CurrentDefaultParent = null;
 	settings.Add("splitIntermediate", true, "Split on finishing Intermediate levels");
 	settings.CurrentDefaultParent = "splitIntermediate";
 
-	settings.Add("split21", true, "21: Mountaintop Retreat");
-	settings.Add("split22", true, "22: Urban Jungle");
-	settings.Add("split23", true, "23: Gauntlet");
-	settings.Add("split24", true, "24: Around the World");
-	settings.Add("split25", true, "25: Skyscraper");
-	settings.Add("split26", true, "26: Timely Ascent");
-	settings.Add("split27", true, "27: Duality");
-	settings.Add("split28", true, "28: Sledding");
-	settings.Add("split29", true, "29: The Road Less Traveled");
-	settings.Add("split30", true, "30: Aim High");
-	settings.Add("split31", true, "31: Points of the Compass");
-	settings.Add("split32", true, "32: Obstacle Course");
-	settings.Add("split33", true, "33: Fork in the Road");
-	settings.Add("split34", true, "34: Great Divide");
-	settings.Add("split35", true, "35: Black Diamond");
-	settings.Add("split36", true, "36: Skate to the Top");
-	settings.Add("split37", true, "37: Spelunking");
-	settings.Add("split38", true, "38: Whirl");
-	settings.Add("split39", true, "39: Hop Skip and a Jump");
-	settings.Add("split40", true, "40: Tree House");
+	for (int i = 21; i <= 40; i++)
+		settings.Add("split" + i, true, i + ": " + levels[i]);
 
 	settings.CurrentDefaultParent = null;
 	settings.Add("splitAdvanced", true, "Split on finishing Advanced levels");
 	settings.CurrentDefaultParent = "splitAdvanced";
 
-	settings.Add("split41", true, "41: Divergence");
-	settings.Add("split42", true, "42: Slick Slide");
-	settings.Add("split43", true, "43: Ordeal");
-	settings.Add("split44", true, "44: Daedalus");
-	settings.Add("split45", true, "45: Survival of the Fittest");
-	settings.Add("split46", true, "46: Ramps Reloaded");
-	settings.Add("split47", true, "47: Cube Root");
-	settings.Add("split48", true, "48: Scaffold");
-	settings.Add("split49", true, "49: Acrobat");
-	settings.Add("split50", true, "50: Endurance");
-	settings.Add("split51", true, "51: Battlements");
-	settings.Add("split52", true, "52: Three-Fold Maze");
-	settings.Add("split53", true, "53: Half-Pipe Elite");
-	settings.Add("split54", true, "54: Will o' Wisp");
-	settings.Add("split55", true, "55: Under Construction");
-	settings.Add("split56", true, "56: Extreme Skiing");
-	settings.Add("split57", true, "57: Three-Fold Race");
-	settings.Add("split58", true, "58: King of the Mountain");
-	settings.Add("split59", true, "59: Natural Selection");
-	settings.Add("split60", true, "60: Schadenfreude");
+	for (int i = 41; i <= 60; i++)
+		settings.Add("split" + i, true, i + ": " + levels[i]);
 
 	settings.CurrentDefaultParent = null;
 	settings.Add("splitUnknown", false, "Split on finishing unknown level");
@@ -114,6 +67,20 @@ startup
 	settings.Add("splitEgg18", true, "Will o' Wisp");
 	settings.Add("splitEgg16", true, "King of the Mountain");
 	settings.Add("splitEgg20", true, "Natural Selection");
+
+	// Configure which levels the timer will start on.
+	settings.CurrentDefaultParent = null;
+	settings.Add("startTimer", true, "Start timer automatically on level start");
+	settings.CurrentDefaultParent = "startTimer";
+
+	for (int i = 1; i <= 60; i++)
+	{
+		bool defaultValue = i % 20 == 1;
+		char letter = (i > 40 ? 'A' : (i > 20 ? 'I' : 'B'));
+		settings.Add("start" + i, defaultValue, String.Format("{0}{1}: {2}", letter, i, levels[i]));
+	}
+
+	settings.Add("startUnknown", false, "Unknown level");
 }
 
 
@@ -150,10 +117,14 @@ update
 		print("OpenMBU autosplitter got line: " + line);
 		if (line.StartsWith("start"))
 		{
-			if (!settings.StartEnabled)
+			if (!settings.StartEnabled || (timer.CurrentPhase != TimerPhase.NotRunning))
 				continue;
-			if (timer.CurrentPhase == TimerPhase.NotRunning)
-				vars.doStart = true;
+			String[] words = line.Split(' ');
+			int levelNum;
+			if (words.Length > 1 && int.TryParse(words[1], out levelNum) && levelNum >= 1 && levelNum <= 60)
+				vars.doStart = settings["start" + levelNum];
+			else
+				vars.doSplit = settings["startUnknown"];
 		}
 		else if (line.StartsWith("loading started"))
 		{
