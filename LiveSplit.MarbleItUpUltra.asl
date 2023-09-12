@@ -1,142 +1,225 @@
-// An autosplitter for Marble It UP!
-// Starts & resets when the "PLAY" button is pressed on the first level, splits when a level is finished.
-
-// Created by TalentedPlatinum & Ero, with help from the Speedrun Tool Development Discord server.
-// Playtested by VilleOlof, general questions and specifications were also made by VilleOlof.
+// Marble It Up! Ultra Autosplitter
+// Based on the original Marble It Up! autosplitter by TalentedPlatinum and Ero
+// Modified to work with Marble It Up! Ultra by thearst3rd
 
 state("Marble It Up") {}
 
 startup
 {
-	vars.Log = (Action<object>)(output => print("[Marble It Up!] " + output));
+	vars.Log = (Action<object>)(output => print("[MIUU ASL] " + output));
 	vars.Unity = Assembly.Load(File.ReadAllBytes(@"Components\UnityASL.bin")).CreateInstance("UnityASL.Unity");
 
-	// Could also check every first item in the settings loop below? I'm lazy.
-	vars.StartLevels = new List<string> { "Learning To Roll", "Duality", "Sugar Rush", "Bumper Invasion", "Newton's Cradle", "Danger Zone" };
-
-	var chapters = new Dictionary<string, string[]>
+	Dictionary<string, string[]> chapters = new Dictionary<string, string[]>
 	{
-		{ "Chapter 1: Master the Basics", new[]
+		{ "Chapter 1: Get Moving", new[]
 			{
-				"Learning To Roll",
-				"Learning To Turn",
-				"Learning To Jump",
-				"Precious Gems",
-				"Up the Wall",
-				"Super Jump",
+				"Learning to Roll",
+				"Learning to Turn",
+				"Bunny Slope",
+				"Learning to Jump",
 				"Full Speed Ahead",
+				"Treasure Trove",
 				"Stay Frosty",
-				"Onward and Upward"
+				"Round the Bend",
+				"Leaf on the Wind",
 			}
 		},
 		{ "Chapter 2: The Subtle Joy of Rolling", new[]
 			{
 				"Duality",
-				"Transit",
+				"Learning to Bounce",
 				"Great Wall",
-				"Bump in the Night",
+				"Carom",
+				"Rush Hour",
 				"Over the Garden Wall",
+				"Into the Arctic",
 				"Wave Pool",
 				"Big Easy",
-				"Archipelago",
-				"Triple Divide",
-				"Thread the Needle"
+				"Transit",
+				"Gravity Knot",
+				"Stepping Stones",
 			}
 		},
-		{ "Chapter 3: Beat the Clock", new[]
+		{ "Chapter 3: Focus on Flow", new[]
 			{
-				"Sugar Rush",
-				"Elevator Action",
 				"Speedball",
-				"Icy Ascent",
-				"River Vantage",
+				"Mount Marblius",
+				"Transmission",
+				"Archipelago",
+				"Sugar Rush",
+				"Slalom",
+				"Outskirts",
 				"Off Kilter",
-				"Four Stairs",
+				"Icy Ascent",
+				"Bad Company",
 				"Totally Tubular",
-				"Time Capsule",
-				"Cog Valley"
+				"Overclocked",
 			}
 		},
 		{ "Chapter 4: Kick It Up a Notch", new[]
 			{
-				"Bumper Invasion",
+				"Tether",
+				"Aqueduct",
+				"Ricochet",
 				"Braid",
 				"Sun Spire",
-				"Epoch",
-				"Retrograde Rally",
-				"Gearheart",
+				"Thunderdrome",
+				"Hyperloop",
+				"Gearing Up",
 				"Acrophobia",
-				"Dire Straits",
-				"Ex Machina",
-				"Diamond in the Sky"
+				"Rime",
+				"Cog Valley",
+				"Citadel",
 			}
 		},
 		{ "Chapter 5: Show Me What You Got", new[]
 			{
 				"Newton's Cradle",
-				"Archiarchy",
-				"Stayin' Alive",
-				"Gordian",
-				"Crystalline Matrix",
-				"Contraption",
-				"Uphill Both Ways",
+				"Ex Machina",
+				"Gearheart",
+				"Kleinsche",
+				"Dire Straits",
+				"Diamond in the Sky",
+				"Glacier",
+				"Shift",
+				"Conduit",
 				"Flip the Table",
-				"Vertigo",
-				"Warp Core",
-				"The Pit of Despair"
+				"Energy",
+				"Mobius Madness",
 			}
 		},
 		{ "Chapter 6: Play for Keeps", new[]
 			{
-				"Danger Zone",
+				"Amethyst",
+				"Rondure",
+				"Isaac's Apple",
+				"Penrose Pass",
+				"Siege",
+				"Flywheel",
+				"Symbiosis",
+				"Tesseract",
+				"Leaps and Bounds",
+				"Vertigo",
+				"Tossed About",
+				"Apogee",
+			}
+		},
+		{ "Bonus 1: Keep on Rolling", new[]
+			{
+				"Rosen Bridge",
+				"Onward and Upward",
+				"Permutation",
+				"Elevator Action",
+				"Time Capsule",
+				"Triple Divide",
+				"Four Stairs",
+				"The Need for Speed",
+				"River Vantage",
+				"Gravity Cube",
+				"Epoch",
 				"Platinum Playground",
-				"Radius",
+			}
+		},
+		{ "Bonus 2: The Way of the Marble", new[]
+			{
+				"Ribbon",
+				"Castle Chaos",
+				"Thread the Needle",
+				"Gordian",
+				"Bumper Invasion",
+				"Bash-tion",
+				"Runout",
+				"Archiarchy",
+				"Crystalline Matrix",
+				"Stayin' Alive",
+				"Medieval Machinations",
+				"The Pit of Despair",
+			}
+		},
+		{ "Bonus 3: Keep Your Cool", new[]
+			{
+				"Contraption",
+				"Uphill Both Ways",
+				"Retrograde Rally",
+				"Warp Core",
+				"Cross Traffic",
+				"Prime",
+				"Halfpipe Heaven",
+				"Wanderlust",
+				"Boomerang",
+				"Kendama",
+				"Cirrus",
+				"Zenith",
+			}
+		},
+		{ "Bonus 4: Challenge Accepted", new[]
+			{
+				"All Downhill From Here",
+				"Danger Zone",
+				"Olympus",
 				"Head in the Clouds",
 				"Centripetal Force",
+				"Slick Shtick",
+				"Network",
+				"Radius",
 				"Escalation",
-				"Confluence",
-				"Olympus",
+				"Torque",
 				"Tangle",
-				"Stratosphere"
+				"Stratosphere",
 			}
-		}
+		},
 	};
 
-	foreach (var chapter in chapters)
+	settings.Add("split_level", true, "Split on level finishes");
+	foreach (KeyValuePair<string, string[]> chapter in chapters)
 	{
-		settings.Add(chapter.Key);
-		foreach (var level in chapter.Value)
-			settings.Add(level, true, level, chapter.Key);
+		string chapterLevelCategory = "chapterlevel_" + chapter.Key;
+		settings.Add(chapterLevelCategory, true, chapter.Key, "split_level");
+		foreach (string level in chapter.Value)
+			settings.Add("level_" + level, true, level, chapterLevelCategory);
 	}
-}
 
-// onStart
-// {
-// 	vars.TotalTime = 0f;
-// }
+	settings.Add("start_timer", true, "Start timer on level start");
+	foreach (KeyValuePair<string, string[]> chapter in chapters)
+	{
+		string chapterStartCategory = "chapterstart_" + chapter.Key;
+		settings.Add(chapterStartCategory, true, chapter.Key, "start_timer");
+		for (int i = 0; i < chapter.Value.Length; i++)
+		{
+			string level = chapter.Value[i];
+			settings.Add("start_" + level, i == 0, level, chapterStartCategory);
+		}
+	}
+
+	/*
+	// TODO: figure out splitting on treasures
+	settings.Add("split_treasure", false, "Split on Treasure Box collection");
+	foreach (KeyValuePair<string, string[]> chapter in chapters)
+	{
+		string chapterTreasureCategory = "chaptertreasure_" + chapter.Key;
+		settings.Add(chapterTreasureCategory, true, chapter.Key, "split_level");
+		foreach (string level in chapter.Value)
+			settings.Add("treasure_" + level, true, level, chapterTreasureCategory);
+	}
+	*/
+}
 
 init
 {
-	// vars.TotalTime = 0f;
-
 	vars.Unity.TryOnLoad = (Func<dynamic, bool>)(helper =>
 	{
 		var str = helper.GetClass("mscorlib", "String");
 
-		// var cs = helper.GetClass("Assembly-CSharp", "ChapterSelect");
-		// var miuChap = helper.GetClass("Assembly-CSharp", "MIU.MarbleChapter");
-
 		var ls = helper.GetClass("Assembly-CSharp", "LevelSelect");
+		var lm = helper.GetClass("Assembly-CSharp", "LevelManager");
 		var miuLvl = helper.GetClass("Assembly-CSharp", "MIU.MarbleLevel");
 
 		var mm = helper.GetClass("Assembly-CSharp", "MarbleManager");
 		var mc = helper.GetClass("Assembly-CSharp", "MarbleController");
 
-		// vars.Unity.MakeString(128, cs.Static, cs["instance"], cs["chapter"], miuChap["name"], str["m_FirstChar"]).Name = "chapter";
-		vars.Unity.MakeString(128, ls.Static, ls["instance"], ls["level"], miuLvl["name"], str["m_firstChar"]).Name = "level";
+		vars.Unity.MakeString(128, lm.Static, lm["CurrentLevel"], miuLvl["name"], str["m_firstChar"]).Name = "level";
 		vars.Unity.Make<bool>(ls.Static, ls["loading"]).Name = "loading";
 		vars.Unity.Make<int>(mm.Static, mm["instance"], mm["Player"], mc["Mode"]).Name = "mode";
-		// vars.Unity.Make<float>(mm.Static, mm["instance"], mm["Player"], mc["ElapsedTime"]).Name = "time";
 
 		return true;
 	});
@@ -146,44 +229,33 @@ init
 
 update
 {
-	if (!vars.Unity.Loaded) return false;
+	if (!vars.Unity.Loaded)
+		return false;
 
 	vars.Unity.Update();
 
-	// current.Chapter = vars.Unity["chapter"].Current;
 	current.Level = vars.Unity["level"].Current;
 	current.Loading = vars.Unity["loading"].Current;
 	current.Mode = vars.Unity["mode"].Current;
-	// current.Time = vars.Unity["time"].Current;
+
+	if (current.Level != old.Level)
+	{
+		vars.Log("Changing to level: " + current.Level);
+		// Warn cuz I'm probably a dumbass
+		if (!settings.ContainsKey("level_" + current.Level))
+			vars.Log("THAT LEVEL IS UNKNOWN BTW!!!!!!!!!!!!");
+	}
 }
 
 start
 {
-	return !old.Loading && current.Loading && vars.StartLevels.Contains(current.Level);
+	return !old.Loading && current.Loading && settings["start_" + current.Level];
 }
 
 split
 {
-	return old.Mode == 1 && current.Mode == 4 && settings[current.Level];
+	return old.Mode == 1 && current.Mode == 4 && settings["level_" + current.Level];
 }
-
-// reset
-// {
-// 	return !old.Loading && current.Loading && current.Level == "Learning To Roll";
-// }
-
-// gameTime
-// {
-// 	if (old.Time > current.Time)
-// 		vars.TotalTime += old.Time;
-
-// 	return TimeSpan.FromSeconds(vars.TotalTime + current.Time);
-// }
-
-// isLoading
-// {
-// 	return true;
-// }
 
 exit
 {
