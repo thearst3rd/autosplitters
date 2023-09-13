@@ -178,6 +178,7 @@ startup
 		foreach (string level in chapter.Value)
 			settings.Add("level_" + level, true, level, chapterLevelCategory);
 	}
+	settings.Add("unknown_level", true, "Other/custom level", "split_level");
 
 	settings.Add("start_timer", true, "Start timer on level start");
 	foreach (KeyValuePair<string, string[]> chapter in chapters)
@@ -190,6 +191,7 @@ startup
 			settings.Add("start_" + level, i == 0, level, chapterStartCategory);
 		}
 	}
+	settings.Add("unknown_start", true, "Other/custom level", "start_timer");
 
 	/*
 	// TODO: figure out splitting on treasures
@@ -201,6 +203,7 @@ startup
 		foreach (string level in chapter.Value)
 			settings.Add("treasure_" + level, true, level, chapterTreasureCategory);
 	}
+	settings.Add("unknown_treasure", true, "Other/custom level", "start_timer");
 	*/
 }
 
@@ -225,6 +228,8 @@ init
 	});
 
 	vars.Unity.Load(game);
+
+	vars.lastTimeFinished = 0;
 }
 
 update
@@ -243,18 +248,55 @@ update
 		vars.Log("Changing to level: " + current.Level);
 		// Warn cuz I'm probably a dumbass
 		if (!settings.ContainsKey("level_" + current.Level))
-			vars.Log("THAT LEVEL IS UNKNOWN BTW!!!!!!!!!!!!");
+			vars.Log("Note, this is an unknown level");
 	}
 }
 
 start
 {
-	return !old.Loading && current.Loading && settings["start_" + current.Level];
+	if (current.Loading && !old.Loading)
+	{
+		vars.Log("Began loading");
+		bool shouldStart;
+		if (settings.ContainsKey("start_" + current.Level))
+			shouldStart = settings["start_" + current.Level];
+		else
+			shouldStart = settings["unknown_start"];
+		if (shouldStart)
+		{
+			vars.Log("Starting run");
+			return true;
+		}
+	}
+	return false;
 }
 
 split
 {
-	return old.Mode == 1 && current.Mode == 4 && settings["level_" + current.Level];
+	if (old.Mode == 1 && current.Mode == 4)
+	{
+		vars.Log("Level finished");
+		long time = Stopwatch.GetTimestamp();
+		if (time <= vars.lastTimeFinished + Stopwatch.Frequency) // Make sure 1s has passed
+		{
+			vars.Log("But not enough time passed!");
+		}
+		else
+		{
+			bool shouldSplit;
+			if (settings.ContainsKey("level_" + current.Level))
+				shouldSplit = settings["level_" + current.Level];
+			else
+				shouldSplit = settings["unknown_level"];
+			if (shouldSplit)
+			{
+				vars.Log("Spltting");
+				vars.lastTimeFinished = time;
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 exit
