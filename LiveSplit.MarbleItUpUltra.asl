@@ -7,201 +7,191 @@ state("Marble It Up") {}
 startup
 {
 	vars.Log = (Action<object>)(output => print("[MIUU ASL] " + output));
-	vars.Unity = Assembly.Load(File.ReadAllBytes(@"Components\UnityASL.bin")).CreateInstance("UnityASL.Unity");
+	vars.Unity = Assembly.Load(File.ReadAllBytes(Path.Combine("Components", "UnityASL.bin"))).CreateInstance("UnityASL.Unity");
 
-	Dictionary<string, string[]> chapters = new Dictionary<string, string[]>
+	string[] chapterNames = {
+		"Chapter 1: Get Moving",
+		"Chapter 2: The Subtle Joy of Rolling",
+		"Chapter 3: Focus on Flow",
+		"Chapter 4: Kick It Up a Notch",
+		"Chapter 5: Show Me What You Got",
+		"Chapter 6: Play for Keeps",
+		"Bonus 1: Keep on Rolling",
+		"Bonus 2: The Way of the Marble",
+		"Bonus 3: Keep Your Cool",
+		"Bonus 4: Challenge Accepted",
+	};
+
+	string[][] levelNames = new[]
 	{
-		{ "Chapter 1: Get Moving", new[]
-			{
-				"Learning to Roll",
-				"Learning to Turn",
-				"Bunny Slope",
-				"Learning to Jump",
-				"Full Speed Ahead",
-				"Treasure Trove",
-				"Stay Frosty",
-				"Round the Bend",
-				"Leaf on the Wind",
-			}
+		new[] {
+			"Learning to Roll",
+			"Learning to Turn",
+			"Bunny Slope",
+			"Learning to Jump",
+			"Full Speed Ahead",
+			"Treasure Trove",
+			"Stay Frosty",
+			"Round the Bend",
+			"Leaf on the Wind",
 		},
-		{ "Chapter 2: The Subtle Joy of Rolling", new[]
-			{
-				"Duality",
-				"Learning to Bounce",
-				"Great Wall",
-				"Carom",
-				"Rush Hour",
-				"Over the Garden Wall",
-				"Into the Arctic",
-				"Wave Pool",
-				"Big Easy",
-				"Transit",
-				"Gravity Knot",
-				"Stepping Stones",
-			}
+		new[] {
+			"Duality",
+			"Learning to Bounce",
+			"Great Wall",
+			"Carom",
+			"Rush Hour",
+			"Over the Garden Wall",
+			"Into the Arctic",
+			"Wave Pool",
+			"Big Easy",
+			"Transit",
+			"Gravity Knot",
+			"Stepping Stones",
 		},
-		{ "Chapter 3: Focus on Flow", new[]
-			{
-				"Speedball",
-				"Mount Marblius",
-				"Transmission",
-				"Archipelago",
-				"Sugar Rush",
-				"Slalom",
-				"Outskirts",
-				"Off Kilter",
-				"Icy Ascent",
-				"Bad Company",
-				"Totally Tubular",
-				"Overclocked",
-			}
+		new[] {
+			"Speedball",
+			"Mount Marblius",
+			"Transmission",
+			"Archipelago",
+			"Sugar Rush",
+			"Slalom",
+			"Outskirts",
+			"Off Kilter",
+			"Icy Ascent",
+			"Bad Company",
+			"Totally Tubular",
+			"Overclocked",
 		},
-		{ "Chapter 4: Kick It Up a Notch", new[]
-			{
-				"Tether",
-				"Aqueduct",
-				"Ricochet",
-				"Braid",
-				"Sun Spire",
-				"Thunderdrome",
-				"Hyperloop",
-				"Gearing Up",
-				"Acrophobia",
-				"Rime",
-				"Cog Valley",
-				"Citadel",
-			}
+		new[] {
+			"Tether",
+			"Aqueduct",
+			"Ricochet",
+			"Braid",
+			"Sun Spire",
+			"Thunderdrome",
+			"Hyperloop",
+			"Gearing Up",
+			"Acrophobia",
+			"Rime",
+			"Cog Valley",
+			"Citadel",
 		},
-		{ "Chapter 5: Show Me What You Got", new[]
-			{
-				"Newton's Cradle",
-				"Ex Machina",
-				"Gearheart",
-				"Kleinsche",
-				"Dire Straits",
-				"Diamond in the Sky",
-				"Glacier",
-				"Shift",
-				"Conduit",
-				"Flip the Table",
-				"Energy",
-				"Mobius Madness",
-			}
+		new[] {
+			"Newton's Cradle",
+			"Ex Machina",
+			"Gearheart",
+			"Kleinsche",
+			"Dire Straits",
+			"Diamond in the Sky",
+			"Glacier",
+			"Shift",
+			"Conduit",
+			"Flip the Table",
+			"Energy",
+			"Mobius Madness",
 		},
-		{ "Chapter 6: Play for Keeps", new[]
-			{
-				"Amethyst",
-				"Rondure",
-				"Isaac's Apple",
-				"Penrose Pass",
-				"Siege",
-				"Flywheel",
-				"Symbiosis",
-				"Tesseract",
-				"Leaps and Bounds",
-				"Vertigo",
-				"Tossed About",
-				"Apogee",
-			}
+		new[] {
+			"Amethyst",
+			"Rondure",
+			"Isaac's Apple",
+			"Penrose Pass",
+			"Siege",
+			"Flywheel",
+			"Symbiosis",
+			"Tesseract",
+			"Leaps and Bounds",
+			"Vertigo",
+			"Tossed About",
+			"Apogee",
 		},
-		{ "Bonus 1: Keep on Rolling", new[]
-			{
-				"Rosen Bridge",
-				"Onward and Upward",
-				"Permutation",
-				"Elevator Action",
-				"Time Capsule",
-				"Triple Divide",
-				"Four Stairs",
-				"The Need for Speed",
-				"River Vantage",
-				"Gravity Cube",
-				"Epoch",
-				"Platinum Playground",
-			}
+		new[] {
+			"Rosen Bridge",
+			"Onward and Upward",
+			"Permutation",
+			"Elevator Action",
+			"Time Capsule",
+			"Triple Divide",
+			"Four Stairs",
+			"The Need for Speed",
+			"River Vantage",
+			"Gravity Cube",
+			"Epoch",
+			"Platinum Playground",
 		},
-		{ "Bonus 2: The Way of the Marble", new[]
-			{
-				"Ribbon",
-				"Castle Chaos",
-				"Thread the Needle",
-				"Gordian",
-				"Bumper Invasion",
-				"Bash-tion",
-				"Runout",
-				"Archiarchy",
-				"Crystalline Matrix",
-				"Stayin' Alive",
-				"Medieval Machinations",
-				"The Pit of Despair",
-			}
+		new[] {
+			"Ribbon",
+			"Castle Chaos",
+			"Thread the Needle",
+			"Gordian",
+			"Bumper Invasion",
+			"Bash-tion",
+			"Runout",
+			"Archiarchy",
+			"Crystalline Matrix",
+			"Stayin' Alive",
+			"Medieval Machinations",
+			"The Pit of Despair",
 		},
-		{ "Bonus 3: Keep Your Cool", new[]
-			{
-				"Contraption",
-				"Uphill Both Ways",
-				"Retrograde Rally",
-				"Warp Core",
-				"Cross Traffic",
-				"Prime",
-				"Halfpipe Heaven",
-				"Wanderlust",
-				"Boomerang",
-				"Kendama",
-				"Cirrus",
-				"Zenith",
-			}
+		new[] {
+			"Contraption",
+			"Uphill Both Ways",
+			"Retrograde Rally",
+			"Warp Core",
+			"Cross Traffic",
+			"Prime",
+			"Halfpipe Heaven",
+			"Wanderlust",
+			"Boomerang",
+			"Kendama",
+			"Cirrus",
+			"Zenith",
 		},
-		{ "Bonus 4: Challenge Accepted", new[]
-			{
-				"All Downhill From Here",
-				"Danger Zone",
-				"Olympus",
-				"Head in the Clouds",
-				"Centripetal Force",
-				"Slick Shtick",
-				"Network",
-				"Radius",
-				"Escalation",
-				"Torque",
-				"Tangle",
-				"Stratosphere",
-			}
+		new[] {
+			"All Downhill From Here",
+			"Danger Zone",
+			"Olympus",
+			"Head in the Clouds",
+			"Centripetal Force",
+			"Slick Shtick",
+			"Network",
+			"Radius",
+			"Escalation",
+			"Torque",
+			"Tangle",
+			"Stratosphere",
 		},
 	};
 
 	settings.Add("split_level", true, "Split on level finishes");
-	foreach (KeyValuePair<string, string[]> chapter in chapters)
+	for (int i = 0; i < chapterNames.Length; i++)
 	{
-		string chapterLevelCategory = "chapterlevel_" + chapter.Key;
-		settings.Add(chapterLevelCategory, true, chapter.Key, "split_level");
-		foreach (string level in chapter.Value)
-			settings.Add("level_" + level, true, level, chapterLevelCategory);
+		string chapterLevelCategory = "chapterlevel_" + i;
+		settings.Add(chapterLevelCategory, true, chapterNames[i], "split_level");
+		for (int j = 0; j < levelNames[i].Length; j++)
+			settings.Add("level_" + i + "_" + j, true, levelNames[i][j], chapterLevelCategory);
 	}
 	settings.Add("unknown_level", true, "Other/custom level", "split_level");
 
 	settings.Add("start_timer", true, "Start timer on level start");
-	foreach (KeyValuePair<string, string[]> chapter in chapters)
+	for (int i = 0; i < chapterNames.Length; i++)
 	{
-		string chapterStartCategory = "chapterstart_" + chapter.Key;
-		settings.Add(chapterStartCategory, true, chapter.Key, "start_timer");
-		for (int i = 0; i < chapter.Value.Length; i++)
-		{
-			string level = chapter.Value[i];
-			settings.Add("start_" + level, i == 0, level, chapterStartCategory);
-		}
+		string chapterStartCategory = "chapterstart_" + i;
+		settings.Add(chapterStartCategory, true, chapterNames[i], "start_timer");
+		for (int j = 0; j < levelNames[i].Length; j++)
+			settings.Add("start_" + i + "_" + j, j == 0, levelNames[i][j], chapterStartCategory);
 	}
 	settings.Add("unknown_start", true, "Other/custom level", "start_timer");
 
 	/*
 	// TODO: figure out splitting on treasures
 	settings.Add("split_treasure", false, "Split on Treasure Box collection");
-	foreach (KeyValuePair<string, string[]> chapter in chapters)
+	for (int i = 0; i < chapterNames.Length; i++)
 	{
-		string chapterTreasureCategory = "chaptertreasure_" + chapter.Key;
-		settings.Add(chapterTreasureCategory, true, chapter.Key, "split_level");
-		foreach (string level in chapter.Value)
-			settings.Add("treasure_" + level, true, level, chapterTreasureCategory);
+		string chapterTreasureCategory = "chaptertreasure_" + i;
+		settings.Add(chapterTreasureCategory, true, chapterNames[i], "split_level");
+		for (int j = 0; j < levelNames[i].Length; j++)
+			settings.Add("treasure_" + i + "_" + j, true, levelNames[i][j], chapterTreasureCategory);
 	}
 	settings.Add("unknown_treasure", true, "Other/custom level", "start_timer");
 	*/
@@ -211,6 +201,7 @@ init
 {
 	vars.Unity.TryOnLoad = (Func<dynamic, bool>)(helper =>
 	{
+		/*
 		var str = helper.GetClass("mscorlib", "String");
 
 		var ls = helper.GetClass("Assembly-CSharp", "LevelSelect");
@@ -219,10 +210,21 @@ init
 
 		var mm = helper.GetClass("Assembly-CSharp", "MarbleManager");
 		var mc = helper.GetClass("Assembly-CSharp", "MarbleController");
+		*/
 
+		var SpeedrunData = helper.GetClass("Assembly-CSharp", "SpeedrunData");
+		//vars.Log("Type of SpeedrunData: " + typeof(SpeedrunData));
+
+		/*
 		vars.Unity.MakeString(128, lm.Static, lm["CurrentLevel"], miuLvl["name"], str["m_firstChar"]).Name = "level";
 		vars.Unity.Make<bool>(ls.Static, ls["loading"]).Name = "loading";
 		vars.Unity.Make<int>(mm.Static, mm["instance"], mm["Player"], mc["Mode"]).Name = "mode";
+		*/
+
+		vars.Unity.Make<long>(SpeedrunData.Static, SpeedrunData["magicnumber"]).Name = "magicnumber";
+		//vars.Unity.Make<int>(SpeedrunData.Static, SpeedrunData["levelState"]).Name = "levelState";
+		//vars.Unity.Make<int>(SpeedrunData.Static, SpeedrunData["chapterID"]).Name = "chapterID";
+		//vars.Unity.Make<int>(SpeedrunData.Static, SpeedrunData["levelID"]).Name = "levelID";
 
 		return true;
 	});
@@ -239,27 +241,35 @@ update
 
 	vars.Unity.Update();
 
-	current.Level = vars.Unity["level"].Current;
-	current.Loading = vars.Unity["loading"].Current;
-	current.Mode = vars.Unity["mode"].Current;
+	// Sanity check
+	//if (vars.Unity["magicnumber"].Current != 0x1337133713371337)
+	//	vars.Log("Warning, magic number not correct: " + vars.Unity["magicnumber"].Current);
 
-	if (current.Level != old.Level)
-	{
-		vars.Log("Changing to level: " + current.Level);
-		// Warn cuz I'm probably a dumbass
-		if (!settings.ContainsKey("level_" + current.Level))
-			vars.Log("Note, this is an unknown level");
-	}
+	current.LevelState = vars.Unity["levelState"].Current;
+	current.ChapterId = vars.Unity["chapterID"].Current;
+	current.LevelId = vars.Unity["levelID"].Current;
+
+
+	// Alert on changes
+	if (current.LevelState != old.LevelState)
+		vars.Log("Changing levelState: " + current.LevelState);
+
+	if (current.ChapterId != old.ChapterId)
+		vars.Log("Changing to new chapter: " + current.ChapterId);
+
+	if (current.LevelId != old.LevelId)
+		vars.Log("Changing to level: " + current.LevelId);
 }
 
 start
 {
-	if (current.Loading && !old.Loading)
+	if (current.LevelState == 0 && old.LevelState != 0)
 	{
 		vars.Log("Began loading");
 		bool shouldStart;
-		if (settings.ContainsKey("start_" + current.Level))
-			shouldStart = settings["start_" + current.Level];
+		string settingKey = "start_" + current.ChapterId + "_" + current.LevelId;
+		if (settings.ContainsKey(settingKey))
+			shouldStart = settings[settingKey];
 		else
 			shouldStart = settings["unknown_start"];
 		if (shouldStart)
@@ -273,7 +283,7 @@ start
 
 split
 {
-	if (old.Mode == 1 && current.Mode == 4)
+	if (current.LevelState == 1 && current.LevelState != 1)
 	{
 		vars.Log("Level finished");
 		long time = Stopwatch.GetTimestamp();
@@ -284,8 +294,9 @@ split
 		else
 		{
 			bool shouldSplit;
-			if (settings.ContainsKey("level_" + current.Level))
-				shouldSplit = settings["level_" + current.Level];
+			string settingKey = "level_" + current.ChapterId + "_" + current.LevelId;
+			if (settings.ContainsKey(settingKey))
+				shouldSplit = settings[settingKey];
 			else
 				shouldSplit = settings["unknown_level"];
 			if (shouldSplit)
