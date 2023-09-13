@@ -28,3 +28,14 @@ Thanks to CaptainRektbeard for tremendous help in getting the $Game::State varia
 ## PlatinumQuest
 
 Autosplitter for a currently-in-development version of [PlatinumQuest](https://marbleblast.com/index.php/downloads/pq) which includes a built-in RTA speedrunning mode.
+
+## Marble It Up! Ultra
+
+Autosplitter for [Marble It Up! Ultra](https://marbleitup.com/). Based on the [autosplitter for Marble It Up! Classic](https://github.com/TalentedPlatinum/AutoSplitters/blob/main/MarbleItUp.asl) by TalentedPlatinum and Ero.
+
+### Features
+
+* Auto start is supported upon starting a level.
+	* The levels which start the timer are configurable.
+* Auto split is supported on level completion.
+	* The levels which will cause a split are configurable.
