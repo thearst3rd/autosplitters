@@ -37,5 +37,5 @@ Autosplitter for [Marble It Up! Ultra](https://marbleitup.com/). Based on the [a
 
 * Auto start is supported upon starting a level.
 	* The levels which start the timer are configurable.
-* Auto split is supported on level completion.
-	* The levels which will cause a split are configurable.
+* Auto split is supported on level completion and treasure box collection.
+	* The levels/treasure boxes which will cause a split are configurable.

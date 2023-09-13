@@ -193,18 +193,15 @@ startup
 	}
 	settings.Add("unknown_start", true, "Other/custom level", "start_timer");
 
-	/*
-	// TODO: figure out splitting on treasures
 	settings.Add("split_treasure", false, "Split on Treasure Box collection");
 	foreach (KeyValuePair<string, string[]> chapter in chapters)
 	{
 		string chapterTreasureCategory = "chaptertreasure_" + chapter.Key;
-		settings.Add(chapterTreasureCategory, true, chapter.Key, "split_level");
+		settings.Add(chapterTreasureCategory, true, chapter.Key, "split_treasure");
 		foreach (string level in chapter.Value)
 			settings.Add("treasure_" + level, true, level, chapterTreasureCategory);
 	}
-	settings.Add("unknown_treasure", true, "Other/custom level", "start_timer");
-	*/
+	settings.Add("unknown_treasure", true, "Other/custom level", "split_treasure");
 }
 
 init
@@ -220,9 +217,19 @@ init
 		var mm = helper.GetClass("Assembly-CSharp", "MarbleManager");
 		var mc = helper.GetClass("Assembly-CSharp", "MarbleController");
 
+		var gpm = helper.GetClass("Assembly-CSharp", "MIU.GamePlayManager");
+
 		vars.Unity.MakeString(128, lm.Static, lm["CurrentLevel"], miuLvl["name"], str["m_firstChar"]).Name = "level";
 		vars.Unity.Make<bool>(ls.Static, ls["loading"]).Name = "loading";
 		vars.Unity.Make<int>(mm.Static, mm["instance"], mm["Player"], mc["Mode"]).Name = "mode";
+		vars.Unity.Make<bool>(gpm.Static, gpm["_Instance"], gpm["GotTrophy"]).Name = "gotTrophy";
+
+		// So it stops complaining
+		vars.Unity.Update();
+		old.Level = vars.Unity["level"].Current;
+		old.Loading = vars.Unity["loading"].Current;
+		old.Mode = vars.Unity["mode"].Current;
+		old.GotTrophy = vars.Unity["gotTrophy"].Current;
 
 		return true;
 	});
@@ -230,6 +237,7 @@ init
 	vars.Unity.Load(game);
 
 	vars.lastTimeFinished = 0;
+	vars.lastTimeGotTrophy = 0;
 }
 
 update
@@ -242,6 +250,7 @@ update
 	current.Level = vars.Unity["level"].Current;
 	current.Loading = vars.Unity["loading"].Current;
 	current.Mode = vars.Unity["mode"].Current;
+	current.GotTrophy = vars.Unity["gotTrophy"].Current;
 
 	if (current.Level != old.Level)
 	{
@@ -292,6 +301,29 @@ split
 			{
 				vars.Log("Spltting");
 				vars.lastTimeFinished = time;
+				return true;
+			}
+		}
+	}
+	if (current.GotTrophy && !old.GotTrophy)
+	{
+		vars.Log("Treasure Box Collected");
+		long time = Stopwatch.GetTimestamp();
+		if (time <= vars.lastTimeGotTrophy + Stopwatch.Frequency) // Make sure 1s has passed, dunno if needed here
+		{
+			vars.Log("But not enough time passed!");
+		}
+		else
+		{
+			bool shouldSplit;
+			if (settings.ContainsKey("treasure_" + current.Level))
+				shouldSplit = settings["treasure_" + current.Level];
+			else
+				shouldSplit = settings["unknown_treasure"];
+			if (shouldSplit)
+			{
+				vars.Log("Spltting");
+				vars.lastTimeGotTrophy = time;
 				return true;
 			}
 		}
