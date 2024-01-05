@@ -107,7 +107,7 @@ init {
 	old.isEnabled = false;
 	old.isDone = false;
 	old.shouldStartRun = false;
-	old.isPauseScreenOpen = false;
+	old.shouldInterpolateTime = false;
 	old.isCrashRecoveryMode = false;
 }
 
@@ -118,20 +118,20 @@ update {
 	current.isEnabled = (vars.booleanFlags.Current & (1 << 1)) != 0;
 	current.isDone = (vars.booleanFlags.Current & (1 << 2)) != 0;
 	current.shouldStartRun = (vars.booleanFlags.Current & (1 << 3)) != 0;
-	current.isPauseScreenOpen = (vars.booleanFlags.Current & (1 << 4)) != 0;
+	current.shouldInterpolateTime = (vars.booleanFlags.Current & (1 << 4)) != 0;
 	current.isCrashRecoveryMode = (vars.booleanFlags.Current & (1 << 5)) != 0;
 }
 
 isLoading {
 	if (!current.isValid || current.isCrashRecoveryMode)
 		return true;
-	return !current.isPauseScreenOpen;
+	return !current.shouldInterpolateTime;
 }
 
 gameTime {
 	if (!current.isValid)
 		return;
-	if (current.isPauseScreenOpen)
+	if (current.shouldInterpolateTime)
 		return;
 	long time = vars.time.Current;
 	if (vars.lastSplitTime.Current > 0 && vars.lastSplitTime.Changed) {
