@@ -214,22 +214,37 @@ init
 		var lm = helper.GetClass("Assembly-CSharp", "LevelManager");
 		var miuLvl = helper.GetClass("Assembly-CSharp", "MIU.MarbleLevel");
 
-		var mm = helper.GetClass("Assembly-CSharp", "MarbleManager");
+		//var mm = helper.GetClass("Assembly-CSharp", "MarbleManager");
 		var mc = helper.GetClass("Assembly-CSharp", "MarbleController");
 
 		var gpm = helper.GetClass("Assembly-CSharp", "MIU.GamePlayManager");
+		var sd = helper.GetClass("Assembly-CSharp", "SpeedrunData");
+
+		//vars.Log("SD static: " + sd.Static);
+		//vars.Log("sd[levelstate]" + sd["levelState"]);
 
 		vars.Unity.MakeString(128, lm.Static, lm["CurrentLevel"], miuLvl["name"], str["m_firstChar"]).Name = "level";
 		vars.Unity.Make<bool>(ls.Static, ls["loading"]).Name = "loading";
-		vars.Unity.Make<int>(mm.Static, mm["instance"], mm["Player"], mc["Mode"]).Name = "mode";
+		//vars.Unity.Make<int>(mm.Static, mm["instance"], mm["Player"], mc["Mode"]).Name = "mode";
 		vars.Unity.Make<bool>(gpm.Static, gpm["_Instance"], gpm["GotTrophy"]).Name = "gotTrophy";
+		vars.Unity.Make<int>(sd.Static, sd["levelState"]).Name = "levelState";
 
 		// So it stops complaining
 		vars.Unity.Update();
 		old.Level = vars.Unity["level"].Current;
 		old.Loading = vars.Unity["loading"].Current;
-		old.Mode = vars.Unity["mode"].Current;
+		//old.Mode = vars.Unity["mode"].Current;
 		old.GotTrophy = vars.Unity["gotTrophy"].Current;
+		old.LevelState = vars.Unity["levelState"].Current;
+
+		// Traditional memory scan for SpeedrunData since I can't seem to use the mono helper for it :(
+		//var module = modules.Where(m => m.ModuleName == "mono-2.0-bdwgc.dll").First();
+		//vars.Log("module: " + module);
+		//var scanner = new SignatureScanner(game, module.BaseAddress, module.ModuleMemorySize);
+
+		//IntPtr ptr = scanner.Scan(new SigScanTarget(new byte[] {0x37, 0x13, 0x37, 0x13, 0x37, 0x13, 0x37, 0x13}));
+		//IntPtr ptr = scanner.Scan(new SigScanTarget(new byte[] {0x13, 0x37, 0x13, 0x37, 0x13, 0x37, 0x13, 0x37}));
+		//vars.Log("SpeedrunData pointer found at: " + ptr);
 
 		return true;
 	});
@@ -249,8 +264,9 @@ update
 
 	current.Level = vars.Unity["level"].Current;
 	current.Loading = vars.Unity["loading"].Current;
-	current.Mode = vars.Unity["mode"].Current;
+	//current.Mode = vars.Unity["mode"].Current;
 	current.GotTrophy = vars.Unity["gotTrophy"].Current;
+	current.LevelState = vars.Unity["levelState"].Current;
 
 	if (current.Level != old.Level)
 	{
@@ -282,7 +298,7 @@ start
 
 split
 {
-	if (old.Mode == 1 && current.Mode == 4)
+	if (old.LevelState != 1 && current.LevelState == 1)
 	{
 		vars.Log("Level finished");
 		long time = Stopwatch.GetTimestamp();
