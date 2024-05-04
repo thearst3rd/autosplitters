@@ -1,7 +1,7 @@
 /*
  * Autosplitter for 4D Golf
  * 4D Golf by CodeParade
- * Autosplitter by thearst3rd
+ * Autosplitter by thearst3rd and Derko
  * asl-help by Ero
  */
 
@@ -18,30 +18,37 @@ init
 {
 	vars.Unity.TryOnLoad = (Func<dynamic, bool>)(helper =>
 	{
-		//var str = helper.GetClass("mscorlib", "String");
+		var str = helper.GetClass("mscorlib", "String");
 
 		var gs = helper.GetClass("Assembly-CSharp", "GameState");
 		var b4 = helper.GetClass("Assembly-CSharp", "Ball4D");
 		var b5 = helper.GetClass("Assembly-CSharp", "Ball5D");
-		var ps = helper.GetClass("Assembly-CSharp", "PlayerState");
-		//var mb = helper.GetClass("Assembly-CSharp", "MonoBehavior");
+		var mm = helper.GetClass("Assembly-CSharp", "MainMenu");
+		var cs = helper.GetClass("Assembly-CSharp", "Course");
 
-		vars.Unity.Make<int>(gs.Static, gs["courseTypeIx"]).Name = "courseTypeIx";
-		vars.Unity.Make<int>(gs.Static, gs["playModeIx"]).Name = "playModeIx";
+		if (b4["sinking"] != b5["sinking"])
+		{
+			// ruh roh... might bork on 5D levels!
+			vars.Log("Warning, Ball4D sinking (" + b4["sinking"] + ") is not the same as Ball5D sinking (" + b5["sinking"] + ")!!! 5D levels might be broken");
+		}
+
 		vars.Unity.Make<int>(gs.Static, gs["holeIx"]).Name = "holeIx";
-		//vars.Unity.MakeString(gs.Static, gs["selectedCourse"]).Name = "selectedCourse";
-		//vars.Unity.MakeArray<object>(gs.Static, gs["players"]).Name = "playerStates";
-		vars.Log("selectedCourse: " + gs["selectedCourse"]);
+		vars.Unity.MakeString(128, gs.Static, gs["selectedCourse"], str["_firstChar"]).Name = "selectedCourse";
 
-		// Borked :(
-		//vars.Unity.Make<bool>(gs.Static, gs["activeBall4D"], b4["sinking"]).Name = "ball4DSinking";
+		vars.Unity.Make<int>(gs.Static, gs["balls"]).Name = "balls"; // Array of balls. This gets created the moment you press play
+		vars.Unity.Make<bool>(gs.Static, gs["balls"], 0x20, b4["sinking"]).Name = "ballSinking"; // thearst3rd: where does 0x20 come from?
+
+		vars.Unity.Make<bool>(mm.Static, mm["skipToGameMenu"]).Name = "skipToGameMenu"; // Is true when loading the main menu from a course
+		vars.Unity.Make<bool>(cs.Static, 0x10).Name = "isLevelLoaded"; // Is true when the level is loaded (thearst3rd - where does 0x10 come from?)
 
 		// So it stops complaining
 		vars.Unity.Update();
-		old.courseTypeIx = vars.Unity["courseTypeIx"].Current;
-		old.playModeIx = vars.Unity["playModeIx"].Current;
 		old.holeIx = vars.Unity["holeIx"].Current;
-		//old.selectedCourse = vars.Unity["selectedCourse"].Current;
+		old.selectedCourse = vars.Unity["selectedCourse"].Current;
+		old.balls = vars.Unity["balls"].Current;
+		old.ballSinking = vars.Unity["ballSinking"].Current;
+		old.skipToGameMenu = vars.Unity["skipToGameMenu"].Current;
+		old.isLevelLoaded = vars.Unity["isLevelLoaded"].Current;
 		old.Scene = vars.Unity.Scenes.Active.Name;
 
 		return true;
@@ -57,26 +64,25 @@ update
 
 	vars.Unity.Update();
 
-	current.courseTypeIx = vars.Unity["courseTypeIx"].Current;
-	current.playModeIx = vars.Unity["playModeIx"].Current;
 	current.holeIx = vars.Unity["holeIx"].Current;
-	//current.selectedCourse = vars.Unity["selectedCourse"].Current;
+	current.selectedCourse = vars.Unity["selectedCourse"].Current;
+	current.balls = vars.Unity["balls"].Current;
+	current.ballSinking = vars.Unity["ballSinking"].Current;
+	current.skipToGameMenu = vars.Unity["skipToGameMenu"].Current;
+	current.isLevelLoaded = vars.Unity["isLevelLoaded"].Current;
 
 	string newScene = vars.Unity.Scenes.Active.Name;
 	if (newScene != "")
 		current.Scene = newScene;
 
-	if (current.playModeIx != old.playModeIx)
-		vars.Log("playModeIx changed!! " + old.playModeIx + " -> " + current.playModeIx);
-
-	if (current.courseTypeIx != old.courseTypeIx)
-		vars.Log("courseTypeIx changed!! " + old.courseTypeIx + " -> " + current.courseTypeIx);
-
 	if (current.holeIx != old.holeIx)
 		vars.Log("holeIx changed!! " + old.holeIx + " -> " + current.holeIx);
 
-	//if (current.selectedCourse != old.selectedCourse)
-	//	vars.Log("selectedCourse changed!! " + old.selectedCourse + " -> " + current.selectedCourse);
+	if (current.selectedCourse != old.selectedCourse)
+	{
+		vars.Log("selectedCourse changed!! " + old.selectedCourse + " -> " + current.selectedCourse);
+		vars.Log(vars.Unity["selectedCourse"].GetType());
+	}
 
 	if (current.Scene != old.Scene)
 		vars.Log("Scene changed!! \"" + old.Scene + "\" -> \"" + current.Scene + "\"");
@@ -91,14 +97,12 @@ start
 
 split
 {
-	// TODO
-	return false;
+	return current.ballSinking && !old.ballSinking;
 }
 
 isLoading
 {
-	//return vars.Unity.IsLoading; // Not found for some reason?
-	return vars.Unity.Scenes.Count != 1;
+	return (current.balls != 0 && !current.isLevelLoaded && !current.ballSinking) || current.skipToGameMenu;
 }
 
 exit
