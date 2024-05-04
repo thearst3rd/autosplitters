@@ -12,6 +12,66 @@ startup
 	vars.Log = (Action<object>)(output => print("[4DGolfASL] " + output));
 	vars.Unity = Assembly.Load(File.ReadAllBytes(@"Components\UnityASL.bin")).CreateInstance("UnityASL.Unity");
 	vars.Unity.LoadSceneManager = true;
+
+	Dictionary<string, string> courseNames = new Dictionary<string, string>
+	{
+		{ "Forest", "Evergreens" },
+		{ "Sand", "Dunes" },
+		{ "Snow", "Arctic" },
+		{ "Abstract", "Mezzanine" },
+		{ "Lava", "Inferno" },
+		{ "Space", "Nebula" },
+		{ "5D", "Beyond" },
+	};
+
+	Dictionary<string, string[]> levelNames = new Dictionary<string, string[]>
+	{
+		{ "Forest", new[] {"First Hole", "Where's The Hole?", "Bumpers", "Simple Slopes", "Hole in the Wall", "Curves", "Rolling Hills", "Thread The Needle", "Tilt at Windmills",
+				"Cylinders", "Trefoil", "Staircase", "Conics", "Bridge the Gap", "Pizza Time", "Labyrinth", "Baffles", "Marathon"} },
+		{ "Sand", new[] {"Banked Turns", "Golden Spikes", "Ruins", "Climbing", "Ramping Up", "Shortcut", "Sand Pits", "Cubed", "Lost Pyramid",
+				"Winding Road", "Up the Trail", "On The Edge", "Tetra-Block", "Viper", "Hiking Over It", "Oasis", "Skipping Stones", "The Altar"} },
+		{ "Snow", new[] {"Big Air", "Ice Skating", "Alpine Loop", "Leaps and Bounds", "Tilted", "Quarter Pipe", "Pachinko", "Half-Pipe", "Igloo",
+				"Drop in the Bucket", "Icicle", "Horseshoe", "Slip & Slide", "The Tube", "Off The Wall", "Wall Ride", "Slalom", "Ski Ramps"} },
+		{ "Abstract", new[] {"Elevator Pitch", "Kinetic Art", "Moving Target", "Pop Art", "Carousel", "Expressionism", "Speed Painting", "Double Rotation", "Magnum Opus",
+				"Pointillism", "Juxtaposition", "Camera Obscura", "Avant-Garde", "Pinball Wizard", "Graffiti", "Motion Pictures", "Mixed Media", "Cubism"} },
+		{ "Lava", new[] {"Fissure", "Banked Danger", "Slow And Steady", "Gears", "Safety First", "Rocky Road", "Bedrock", "Cascade", "Volcano",
+				"Off the Rails", "Pipeline", "Knockout", "Burning CDs", "Incinerator", "Descend", "Fire Pit", "Junkyard", "Vortex"} },
+		{ "Space", new[] {"Gecko", "Escape Velocity", "Moon Bounce", "Mobius", "UFOs", "Anti-Gravity", "Planetary Rings", "Perspective", "Wormhole",
+				"Shooting Star", "Blue Moon", "Spaced Out", "3-Sphere", "Pulsar", "Cosmic String", "Hypercube", "Quantum Tunnel", "Total Eclipse"} },
+		{ "5D", new[] {"Beyond?", "5D Turns", "Tesseract Cage", "Blocked Chakra", "Turn, Turn, Turn", "Spirit Bridge", "Manifest", "Mandala", "5D Chess",
+				"Loopholes", "Cosmic Leap", "Lucid", "Liminal", "Seeking Balance", "Delirium", "Tsunami", "Synchronicity", "Of Madness"} },
+	};
+
+	settings.Add("split_hole", true, "Split on finishing a hole");
+	foreach (string course in new[] {"Forest", "Sand", "Snow", "Abstract", "Lava", "Space", "5D"}) // Specify again to guarantee correct order
+	{
+		string courseKey = "course_" + course;
+		settings.Add(courseKey, true, courseNames[course], "split_hole");
+		for (int i = 0; i < 9; i++)
+		{
+			settings.Add(courseKey + "_" + i, true, levelNames[course][i], courseKey);
+		}
+		courseKey += "_challenge";
+		settings.Add(courseKey, true, courseNames[course] + " Challenge", "split_hole");
+		for (int i = 0; i < 9; i++)
+		{
+			settings.Add(courseKey + "_" + i, true, levelNames[course][i + 9], courseKey);
+		}
+	}
+
+	vars.DetermineSetting = (Func<string, int, string>)delegate(string course, int holeIx)
+	{
+		if (course.EndsWith("2")) {
+			return "course_" + course.Substring(0, course.Length - 1) + "_challenge_" + holeIx;
+		}
+		if (course.EndsWith("3")) {
+			if (holeIx >= 9)
+				return "course_" + course.Substring(0, course.Length - 1) + "_challenge_" + (holeIx - 9);
+			else
+				return "course_" + course.Substring(0, course.Length - 1) + "_" + holeIx;
+		}
+		return "course_" + course + "_" + holeIx;
+	};
 }
 
 init
@@ -80,8 +140,7 @@ update
 
 	if (current.selectedCourse != old.selectedCourse)
 	{
-		vars.Log("selectedCourse changed!! " + old.selectedCourse + " -> " + current.selectedCourse);
-		vars.Log(vars.Unity["selectedCourse"].GetType());
+		vars.Log("selectedCourse changed!! \"" + old.selectedCourse + "\" -> \"" + current.selectedCourse + "\"");
 	}
 
 	if (current.Scene != old.Scene)
@@ -97,7 +156,18 @@ start
 
 split
 {
-	return current.ballSinking && !old.ballSinking;
+	if (current.ballSinking && !old.ballSinking)
+	{
+		vars.Log("Level finish detected on " + current.selectedCourse + " hole " + current.holeIx);
+		string settingToCheck = vars.DetermineSetting(current.selectedCourse, current.holeIx);
+		vars.Log("Checking setting: " + settingToCheck);
+		if (settings[settingToCheck])
+		{
+			vars.Log("SPLIT!");
+			return true;
+		}
+	}
+	return false;
 }
 
 isLoading
