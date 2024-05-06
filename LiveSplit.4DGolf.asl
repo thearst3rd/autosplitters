@@ -74,6 +74,7 @@ init {
 		var b5 = helper.GetClass("Assembly-CSharp", "Ball5D");
 		var mm = helper.GetClass("Assembly-CSharp", "MainMenu");
 		var cs = helper.GetClass("Assembly-CSharp", "Course");
+		var hp = helper.GetClass("Assembly-CSharp", "HoleParams");
 
 		if (b4["sinking"] != b5["sinking"]) {
 			// ruh roh... might bork on 5D levels!
@@ -89,6 +90,11 @@ init {
 		vars.Unity.Make<bool>(mm.Static, mm["skipToGameMenu"]).Name = "skipToGameMenu"; // Is true when loading the main menu from a course
 		vars.Unity.Make<bool>(cs.Static, 0x10).Name = "isLevelLoaded"; // Is true when the level is loaded (thearst3rd - where does 0x10 come from?)
 
+		vars.Unity.MakeString(128, gs.Static, gs["selectedSingleHole"], hp["course"], str["_firstChar"]).Name = "selectedSingleHoleCourse";
+		// For whatever reason, it can't find the named fields for the rest of these? Manually putting in the fields offsets
+		vars.Unity.MakeString(128, gs.Static, gs["selectedSingleHole"], /*hp["path"]*/ 0x18, str["_firstChar"]).Name = "selectedSingleHolePath";
+		vars.Unity.Make<bool>(gs.Static, gs["selectedSingleHole"], /*hp["isCustom"]*/ 0x28).Name = "selectedSingleHoleIsCustom";
+
 		// So it stops complaining
 		vars.Unity.Update();
 		old.holeIx = vars.Unity["holeIx"].Current;
@@ -97,6 +103,9 @@ init {
 		old.ballSinking = vars.Unity["ballSinking"].Current;
 		old.skipToGameMenu = vars.Unity["skipToGameMenu"].Current;
 		old.isLevelLoaded = vars.Unity["isLevelLoaded"].Current;
+		old.selectedSingleHoleCourse = vars.Unity["selectedSingleHoleCourse"].Current;
+		old.selectedSingleHolePath = vars.Unity["selectedSingleHolePath"].Current;
+		old.selectedSingleHoleIsCustom = vars.Unity["selectedSingleHoleIsCustom"].Current;
 		old.Scene = vars.Unity.Scenes.Active.Name;
 
 		return true;
@@ -117,6 +126,9 @@ update {
 	current.ballSinking = vars.Unity["ballSinking"].Current;
 	current.skipToGameMenu = vars.Unity["skipToGameMenu"].Current;
 	current.isLevelLoaded = vars.Unity["isLevelLoaded"].Current;
+	current.selectedSingleHoleCourse = vars.Unity["selectedSingleHoleCourse"].Current;
+	current.selectedSingleHolePath = vars.Unity["selectedSingleHolePath"].Current;
+	current.selectedSingleHoleIsCustom = vars.Unity["selectedSingleHoleIsCustom"].Current;
 
 	string newScene = vars.Unity.Scenes.Active.Name;
 	if (newScene != "")
@@ -127,6 +139,15 @@ update {
 
 	if (current.selectedCourse != old.selectedCourse)
 		vars.Log("selectedCourse changed!! \"" + old.selectedCourse + "\" -> \"" + current.selectedCourse + "\"");
+
+	if (current.selectedSingleHoleCourse != old.selectedSingleHoleCourse)
+		vars.Log("selectedSingleHoleCourse changed!! \"" + old.selectedSingleHoleCourse + "\" -> \"" + current.selectedSingleHoleCourse + "\"");
+
+	if (current.selectedSingleHolePath != old.selectedSingleHolePath)
+		vars.Log("selectedSingleHolePath changed!! \"" + old.selectedSingleHolePath + "\" -> \"" + current.selectedSingleHolePath + "\"");
+
+	if (current.selectedSingleHoleIsCustom != old.selectedSingleHoleIsCustom)
+		vars.Log("selectedSingleHoleIsCustom changed!! " + old.selectedSingleHoleIsCustom + " -> " + current.selectedSingleHoleIsCustom + "");
 
 	if (current.Scene != old.Scene)
 		vars.Log("Scene changed!! \"" + old.Scene + "\" -> \"" + current.Scene + "\"");
