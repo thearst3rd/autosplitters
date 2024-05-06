@@ -7,14 +7,12 @@
 
 state("4D Golf") {}
 
-startup
-{
+startup {
 	vars.Log = (Action<object>)(output => print("[4DGolfASL] " + output));
 	vars.Unity = Assembly.Load(File.ReadAllBytes(@"Components\UnityASL.bin")).CreateInstance("UnityASL.Unity");
 	vars.Unity.LoadSceneManager = true;
 
-	Dictionary<string, string> courseNames = new Dictionary<string, string>
-	{
+	Dictionary<string, string> courseNames = new Dictionary<string, string> {
 		{ "Forest", "Evergreens" },
 		{ "Sand", "Dunes" },
 		{ "Snow", "Arctic" },
@@ -24,8 +22,7 @@ startup
 		{ "5D", "Beyond" },
 	};
 
-	Dictionary<string, string[]> levelNames = new Dictionary<string, string[]>
-	{
+	Dictionary<string, string[]> levelNames = new Dictionary<string, string[]> {
 		{ "Forest", new[] {"First Hole", "Where's The Hole?", "Bumpers", "Simple Slopes", "Hole in the Wall", "Curves", "Rolling Hills", "Thread The Needle", "Tilt at Windmills",
 				"Cylinders", "Trefoil", "Staircase", "Conics", "Bridge the Gap", "Pizza Time", "Labyrinth", "Baffles", "Marathon"} },
 		{ "Sand", new[] {"Banked Turns", "Golden Spikes", "Ruins", "Climbing", "Ramping Up", "Shortcut", "Sand Pits", "Cubed", "Lost Pyramid",
@@ -43,24 +40,18 @@ startup
 	};
 
 	settings.Add("split_hole", true, "Split on finishing a hole");
-	foreach (string course in new[] {"Forest", "Sand", "Snow", "Abstract", "Lava", "Space", "5D"}) // Specify again to guarantee correct order
-	{
+	foreach (string course in new[] {"Forest", "Sand", "Snow", "Abstract", "Lava", "Space", "5D"}) { // Specify again to guarantee correct order
 		string courseKey = "course_" + course;
 		settings.Add(courseKey, true, courseNames[course], "split_hole");
 		for (int i = 0; i < 9; i++)
-		{
 			settings.Add(courseKey + "_" + i, true, levelNames[course][i], courseKey);
-		}
 		courseKey += "_challenge";
 		settings.Add(courseKey, true, courseNames[course] + " Challenge", "split_hole");
 		for (int i = 0; i < 9; i++)
-		{
 			settings.Add(courseKey + "_" + i, true, levelNames[course][i + 9], courseKey);
-		}
 	}
 
-	vars.DetermineSetting = (Func<string, int, string>)delegate(string course, int holeIx)
-	{
+	vars.DetermineSetting = (Func<string, int, string>)delegate(string course, int holeIx) {
 		if (course.EndsWith("2")) {
 			return "course_" + course.Substring(0, course.Length - 1) + "_challenge_" + holeIx;
 		}
@@ -74,10 +65,8 @@ startup
 	};
 }
 
-init
-{
-	vars.Unity.TryOnLoad = (Func<dynamic, bool>)(helper =>
-	{
+init {
+	vars.Unity.TryOnLoad = (Func<dynamic, bool>)(helper => {
 		var str = helper.GetClass("mscorlib", "String");
 
 		var gs = helper.GetClass("Assembly-CSharp", "GameState");
@@ -86,8 +75,7 @@ init
 		var mm = helper.GetClass("Assembly-CSharp", "MainMenu");
 		var cs = helper.GetClass("Assembly-CSharp", "Course");
 
-		if (b4["sinking"] != b5["sinking"])
-		{
+		if (b4["sinking"] != b5["sinking"]) {
 			// ruh roh... might bork on 5D levels!
 			vars.Log("Warning, Ball4D sinking (" + b4["sinking"] + ") is not the same as Ball5D sinking (" + b5["sinking"] + ")!!! 5D levels might be broken");
 		}
@@ -117,8 +105,7 @@ init
 	vars.Unity.Load(game);
 }
 
-update
-{
+update {
 	if (!vars.Unity.Loaded)
 		return false;
 
@@ -139,33 +126,26 @@ update
 		vars.Log("holeIx changed!! " + old.holeIx + " -> " + current.holeIx);
 
 	if (current.selectedCourse != old.selectedCourse)
-	{
 		vars.Log("selectedCourse changed!! \"" + old.selectedCourse + "\" -> \"" + current.selectedCourse + "\"");
-	}
 
 	if (current.Scene != old.Scene)
 		vars.Log("Scene changed!! \"" + old.Scene + "\" -> \"" + current.Scene + "\"");
 }
 
-start
-{
-	if (old.Scene == "MainMenu" && (current.Scene == "Level4D" || current.Scene == "Level5D"))
-	{
+start {
+	if (old.Scene == "MainMenu" && (current.Scene == "Level4D" || current.Scene == "Level5D")) {
 		vars.Log("Transition from " + old.Scene + " to " + current.Scene + ", START!");
 		return true;
 	}
 	return false;
 }
 
-split
-{
-	if (current.ballSinking && !old.ballSinking)
-	{
+split {
+	if (current.ballSinking && !old.ballSinking) {
 		vars.Log("Level finish detected on " + current.selectedCourse + " hole " + current.holeIx);
 		string settingToCheck = vars.DetermineSetting(current.selectedCourse, current.holeIx);
 		vars.Log("Checking setting: " + settingToCheck);
-		if (settings[settingToCheck])
-		{
+		if (settings[settingToCheck]) {
 			vars.Log("SPLIT!");
 			return true;
 		}
@@ -173,17 +153,14 @@ split
 	return false;
 }
 
-isLoading
-{
+isLoading {
 	return (current.balls != 0 && !current.isLevelLoaded && !current.ballSinking) || current.skipToGameMenu;
 }
 
-exit
-{
+exit {
 	vars.Unity.Reset();
 }
 
-shutdown
-{
+shutdown {
 	vars.Unity.Reset();
 }
