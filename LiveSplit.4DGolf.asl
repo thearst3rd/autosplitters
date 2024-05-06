@@ -149,9 +149,12 @@ update
 
 start
 {
-	if (old.Scene != "MainMenu")
-		return false;
-	return current.Scene == "Level4D" || current.Scene == "Level5D";
+	if (old.Scene == "MainMenu" && (current.Scene == "Level4D" || current.Scene == "Level5D"))
+	{
+		vars.Log("Transition from " + old.Scene + " to " + current.Scene + ", START!");
+		return true;
+	}
+	return false;
 }
 
 split
