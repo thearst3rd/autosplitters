@@ -73,7 +73,6 @@ init {
 		var b4 = helper.GetClass("Assembly-CSharp", "Ball4D");
 		var b5 = helper.GetClass("Assembly-CSharp", "Ball5D");
 		var mm = helper.GetClass("Assembly-CSharp", "MainMenu");
-		var cs = helper.GetClass("Assembly-CSharp", "Course");
 
 		if (b4["sinking"] != b5["sinking"]) {
 			// ruh roh... might bork on 5D levels!
@@ -85,9 +84,11 @@ init {
 
 		vars.Unity.Make<int>(gs.Static, gs["balls"]).Name = "balls"; // Array of balls. This gets created the moment you press play
 		vars.Unity.Make<bool>(gs.Static, gs["balls"], 0x20, b4["sinking"]).Name = "ballSinking"; // thearst3rd: where does 0x20 come from?
+		
+		vars.Unity.Make<int>(gs.Static, gs["balls"], 0x20).Name = "ballAddress"; // Is a non-zero number if the ball is loaded, and zero when it isn't
+		vars.Unity["ballAddress"].FailAction = (MemoryWatcher.ReadFailAction)1; // Configures the MemoryWatcher to return 0 if pointer fails a read. By default it returns the last read value.
 
 		vars.Unity.Make<bool>(mm.Static, mm["skipToGameMenu"]).Name = "skipToGameMenu"; // Is true when loading the main menu from a course
-		vars.Unity.Make<bool>(cs.Static, 0x10).Name = "isLevelLoaded"; // Is true when the level is loaded (thearst3rd - where does 0x10 come from?)
 
 		// So it stops complaining
 		vars.Unity.Update();
@@ -95,8 +96,8 @@ init {
 		old.selectedCourse = vars.Unity["selectedCourse"].Current;
 		old.balls = vars.Unity["balls"].Current;
 		old.ballSinking = vars.Unity["ballSinking"].Current;
+		old.ballAddress = vars.Unity["ballAddress"].Current;
 		old.skipToGameMenu = vars.Unity["skipToGameMenu"].Current;
-		old.isLevelLoaded = vars.Unity["isLevelLoaded"].Current;
 		old.Scene = vars.Unity.Scenes.Active.Name;
 
 		return true;
@@ -115,8 +116,8 @@ update {
 	current.selectedCourse = vars.Unity["selectedCourse"].Current;
 	current.balls = vars.Unity["balls"].Current;
 	current.ballSinking = vars.Unity["ballSinking"].Current;
+	current.ballAddress = vars.Unity["ballAddress"].Current;
 	current.skipToGameMenu = vars.Unity["skipToGameMenu"].Current;
-	current.isLevelLoaded = vars.Unity["isLevelLoaded"].Current;
 
 	string newScene = vars.Unity.Scenes.Active.Name;
 	if (newScene != "")
@@ -154,7 +155,7 @@ split {
 }
 
 isLoading {
-	return (current.balls != 0 && !current.isLevelLoaded && !current.ballSinking) || current.skipToGameMenu;
+	return (current.balls != 0 && current.ballAddress == 0) || current.skipToGameMenu; // If the balls array exists but the ball does not, the level is loading.
 }
 
 exit {
